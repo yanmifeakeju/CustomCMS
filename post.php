@@ -1,34 +1,41 @@
 <?php 
 require 'includes/db.php';
 
+if (isset($_GET['id']) && is_numeric($_GET['id']) ) {
+  $id = $_GET['id'];
+} else {
+  $id = 0;
+}
 $sql = "SELECT id, title, content 
-        FROM posts";
+        FROM posts
+        WHERE id = $id";
 
 $query = mysqli_query($conn, $sql);
 
 if ($query === false) {
   echo mysqli_error($conn);
 } else {
-  $posts = mysqli_fetch_all($query, MYSQLI_ASSOC);
+  $post = mysqli_fetch_assoc($query);
 }
 ?>
 
-<?php require 'includes/header.php'; ?>
-  <div class="container postsContainer">
+<?php require 'includes/header.php';  ?>
+
+<div class="container postsContainer">
     <div id="posts">
-      <?php if(!empty($posts)): ?>
-     
-    <?php foreach($posts as $post): ?>
+      <?php if($post !== null): ?>
     <div class="card mb-3">
           <div class="card-body">
             <h4 class="card-title"><?= $post['title'] ?></h4>
             <p class="card-text"><?= $post['content'] ?></p>
-            <a href="post.php?id=<?= $post['id']?>"class="card-link" >
-            <i class="fa fa-eye"></i>
+            <a href="editpost.php?id=<?= $post['id']?>" class="card-link">
+              <i class="fa fa-pencil"></i>
+            </a>
+            <a href="deletepost.php?id=<?= $post['id']?>"class="card-link" >
+            <i class="fa fa-remove"></i>
           </a>
           </div>
         </div>
-    <?php endforeach; ?>
     <?php  else :?>
       <div class="card mb-3">
         <div class="card-body">
@@ -36,7 +43,4 @@ if ($query === false) {
         </div>
       </div>
     <?php endif;?>
-    
-    </div>
-  </div>
-  <?php require 'includes/footer.php'?>
+<?php require 'includes/footer.php';?>
