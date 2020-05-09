@@ -6,27 +6,28 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $post = getPost($conn, $_GET['id'], 'id, post_hash');
 
 }
+if ($post) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' & $post['post_hash'] === $_GET['key']) {
+        $sql = 'DELETE
+                FROM posts
+                WHERE id = ?
+                AND post_hash = ?';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' & $post['post_hash'] === $_GET['key']) {
-    $sql = 'DELETE
-            FROM posts
-            WHERE id = ?
-            AND post_hash = ?';
+        $stmt = mysqli_prepare($conn, $sql);
 
-    $stmt = mysqli_prepare($conn, $sql);
+        if ($stmt !== false) {
+            mysqli_stmt_bind_param($stmt, 'is', $post['id'], $post['post_hash']);
 
-    if ($stmt !== false) {
-        mysqli_stmt_bind_param($stmt, 'is', $post['id'], $post['post_hash']);
-
-        if (mysqli_stmt_execute($stmt)) {
-            header('Location: index.php');
+            if (mysqli_stmt_execute($stmt)) {
+                header('Location: index.php');
+            } else {
+                echo mysqli_stmt_error($stmt);
+            }
         } else {
-            echo mysqli_stmt_error($stmt);
+            echo mysqli_error($conn);
         }
-    } else {
-        echo mysqli_error($conn);
-    }
 
+    }
 }
 
 ?>
@@ -35,7 +36,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' & $post['post_hash'] === $_GET['key'])
 <div class="mx-auto text-center card text-white bg-warning mb-3" style="max-width: 18rem;">
 
 
-    <?php if ($post['post_hash'] === $_GET['key']): ?>
+    <?php if ($post && ($post['post_hash']) === $_GET['key']): ?>
         <div class="card-header">Are you sure?</div>
         <div class="card-body">
             <form class="" action="" method="post">
