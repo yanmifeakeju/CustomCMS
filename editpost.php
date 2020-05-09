@@ -1,46 +1,53 @@
 <?php
 require 'includes/db.php';
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $id = $_GET['id'];
-} else {
-    $id = 0;
-}
-$sql = "SELECT id, title, content
-        FROM posts
-        WHERE id = $id";
+require 'includes/posts.php';
 
-$query = mysqli_query($conn, $sql);
-
-if ($query === false) {
-    echo mysqli_error($conn);
-} else {
-    $post = mysqli_fetch_assoc($query);
-}
+//Declare form varibles
 $formTitle = 'Edit Post';
-$postID = $post['id'];
-$title = $post['title'];
-$content = $post['content'];
+$state = 'Update';
 $button = 'Update Post';
 
-if (isset($_POST['update'])) {
+$conn = getDB();
+if (isset($_GET['id']) && is_numeric($_GET['id'])) {
+    $post = getPost($conn, $_GET['id']);
+    if ($post) {
+        $postID = $post['id'];
+        $title = $post['title'];
+        $content = $post['content'];
+        $state = $post['post_hash'];
+    }
+} else {
+    $post = $_GET['id'];
+}
 
-    $content = $_POST['content'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['state'] === $state) {
     $title = $_POST['title'];
+    $content = $_POST['content'];
 
-    $sql = "UPDATE posts
-          SET
-                title = '$title',
-                content = '$content'
-          WHERE
-                id = $postID";
-    $query = mysqli_query($conn, $sql);
+    $errors = validatePost($title, $content);
 
-    if ($query === false) {
-        echo mysqli_error($conn);
-    } else {
-        $title = '';
-        $content = '';
-        header("Location: post.php?id={$postID}");
+    if (empty($errors)) {
+        $sql = "UPDATE
+                posts
+                SET
+                title = ?,
+                content = ?
+                WHERE
+                id = ?";
+
+        $stmt = mysqli_prepare($conn, $sql);
+
+        if ($stmt !== false) {
+            mysqli_stmt_bind_param($stmt, 'ssi', $title, $content, $postID);
+            if (mysqli_stmt_execute($stmt)) {
+                $title = '';
+                $content = '';
+                header("Location: post.php?id={$postID}");
+
+            }
+        } else {
+            echo mysqli_error($conn);
+        }
     }
 }
 
@@ -48,7 +55,18 @@ if (isset($_POST['update'])) {
 
 
 <?php require 'includes/header.php'?>
+<?php if (is_string($post) || $post === null): ?>
+    <div class="container postsContainer">
+    <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title"><?="No record of post with id: " . htmlspecialchars($_GET['id'])?></h5>
+            </div>
+        </div>
+    </div>
+<?php else: ?>
 
-<?php require 'includes/form.php'?>
+    <?php require 'includes/form.php'?>
+
+<?php endif;?>
 
 <?php require 'includes/footer.php'?>
