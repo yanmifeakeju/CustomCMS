@@ -13,5 +13,6 @@
 <nav class="navbar navbar-dark bg-primary mb-3">
     <div class="container">
       <a href="index.php" class="navbar-brand">CustomCMS</a>
+      <a href="newpost.php" class="nav-link alert-link alert-light">Write a new post</a>
     </div>
   </nav>
