@@ -1,4 +1,11 @@
 <?php
+require 'includes/auth.php';
+
+session_start();
+if (!isLoggedIn()) {
+
+    header('Location: login.php?error=unauthorised');
+}
 require 'includes/posts.php';
 
 $formTitle = 'New Post';

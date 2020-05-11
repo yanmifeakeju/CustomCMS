@@ -1,5 +1,7 @@
 <?php
 require 'includes/db.php';
+require 'includes/auth.php';
+session_start();
 
 $conn = getDB();
 
@@ -16,6 +18,7 @@ if ($query === false) {
 ?>
 
 <?php require 'includes/header.php';?>
+
 <div class="container postsContainer">
   <div id="posts">
     <?php if (!empty($posts)): ?>
@@ -25,9 +28,11 @@ if ($query === false) {
           <div class="card-body">
             <h4 class="card-title"><?=htmlspecialchars($post['title'])?></h4>
             <p class="card-text"><?=htmlspecialchars($post['content'])?></p>
+            <?php if (isLoggedIn()): ?>
             <a href="post.php?id=<?=$post['id']?>&key=<?=$post['post_hash']?>" class="card-link">
               <i class="fa fa-eye"></i>
             </a>
+            <?php endif;?>
           </div>
         </div>
       <?php endforeach;?>

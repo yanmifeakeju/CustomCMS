@@ -1,6 +1,8 @@
 <?php
 require 'includes/db.php';
 require 'includes/posts.php';
+require 'includes/auth.php';
+session_start();
 $conn = getDB();
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
     $post = getPost($conn, $_GET['id']);
@@ -18,12 +20,14 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
         <div class="card-body">
           <h4 class="card-title"><?=htmlspecialchars($post['title'])?></h4>
           <p class="card-text"><?=htmlspecialchars($post['content'])?></p>
-          <a href="editpost.php?id=<?=$post['id']?>&key=<?=$post['post_hash']?>" class="card-link">
-            <i class="fa fa-pencil"></i>
-          </a>
-          <a href="deletepost.php?id=<?=$post['id']?>&key=<?=$post['post_hash']?>" class="card-link">
-            <i class="fa fa-remove"></i>
-          </a>
+          <?php if (isLoggedIn()): ?>
+            <a href="editpost.php?id=<?=$post['id']?>&key=<?=$post['post_hash']?>" class="card-link">
+              <i class="fa fa-pencil"></i>
+            </a>
+            <a href="deletepost.php?id=<?=$post['id']?>&key=<?=$post['post_hash']?>" class="card-link">
+              <i class="fa fa-remove"></i>
+            </a>
+          <?php endif;?>
         </div>
       </div>
     <?php else: ?>
@@ -32,7 +36,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
           <h5 class="card-title">No article found</h5>
         </div>
       </div>
-      <?php endif;?>
+    <?php endif;?>
   </div>
 </div>
 
