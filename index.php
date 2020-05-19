@@ -1,20 +1,13 @@
 <?php
-require 'includes/db.php';
+require 'classes/Database.php';
+require 'classes/Post.php';
 require 'includes/auth.php';
 session_start();
 
-$conn = getDB();
+$db = new Database();
+$conn = $db->getConn();
+$posts = Post::getAll($conn);
 
-$sql = "SELECT *
-        FROM posts";
-
-$query = mysqli_query($conn, $sql);
-
-if ($query === false) {
-    echo mysqli_error($conn);
-} else {
-    $posts = mysqli_fetch_all($query, MYSQLI_ASSOC);
-}
 ?>
 
 <?php require 'includes/header.php';?>

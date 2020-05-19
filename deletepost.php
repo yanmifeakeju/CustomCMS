@@ -1,32 +1,24 @@
 <?php
-require 'includes/db.php';
-require 'includes/posts.php';
+require 'classes/Database.php';
+require 'classes/Post.php';
+require 'includes/auth.php';
+
+session_start();
+if (!isLoggedIn()) {
+    header('Location: login.php?error=unauthorised');
+}
+
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $conn = getDB();
-    $post = getPost($conn, $_GET['id'], 'id, post_hash');
+    $db = new Database();
+    $conn = $db->getConn();
+    $post = Post::getPostByID($conn, $_GET['id'], 'id, post_hash');
 
 }
 if ($post) {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' & $post['post_hash'] === $_GET['key']) {
-        $sql = 'DELETE
-                FROM posts
-                WHERE id = ?
-                AND post_hash = ?';
-
-        $stmt = mysqli_prepare($conn, $sql);
-
-        if ($stmt !== false) {
-            mysqli_stmt_bind_param($stmt, 'is', $post['id'], $post['post_hash']);
-
-            if (mysqli_stmt_execute($stmt)) {
-                header('Location: index.php');
-            } else {
-                echo mysqli_stmt_error($stmt);
-            }
-        } else {
-            echo mysqli_error($conn);
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' & $post->post_hash === $_GET['key']) {
+        if ($post->deletePost($conn)) {
+            header("Location: index.php");
         }
-
     }
 }
 
@@ -36,11 +28,11 @@ if ($post) {
 <div class="mx-auto text-center card text-white bg-warning mb-3" style="max-width: 18rem;">
 
 
-    <?php if ($post && ($post['post_hash']) === $_GET['key']): ?>
+    <?php if ($post && ($post->post_hash) === $_GET['key']): ?>
         <div class="card-header">Are you sure?</div>
         <div class="card-body">
             <form class="" action="" method="post">
-                <a class="btn btn-secondary mr-1" href="post.php?id=<?=$post['id']?>&key=<?=$post['post_hash']?>">Cancel</a>
+                <a class="btn btn-secondary mr-1" href="post.php?id=<?=$post->id?>&key=<?=$post->post_hash?>">Cancel</a>
                 <button class="btn btn-secondary">Delete</button>
             </form>
         </div>

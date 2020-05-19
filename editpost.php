@@ -1,63 +1,50 @@
 <?php
-require 'includes/db.php';
-require 'includes/posts.php';
-
-//Declare form varibles
-$formTitle = 'Edit Post';
-$state = 'Update';
-$button = 'Update Post';
-
-$conn = getDB();
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $post = getPost($conn, $_GET['id']);
-    if ($post) {
-        $postID = $post['id'];
-        $title = $post['title'];
-        $content = $post['content'];
-        $state = $post['post_hash'];
-    }
-} else {
-    $post = $_GET['id'];
+require 'classes/Database.php';
+require 'classes/Post.php';
+require 'includes/auth.php';
+//Check if session is valid
+session_start();
+if (!isLoggedIn()) {
+    header('Location: login.php?error=unauthorised');
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['state'] === $state) {
-    $title = $_POST['title'];
-    $content = $_POST['content'];
+//Check the id is set in the GET method
+if (isset($_GET['id'])) {
+    //Make database connection
+    $db = new Database();
+    $conn = $db->getConn();
+    $post = Post::getPostByID($conn, $_GET['id']);
 
-    $errors = validatePost($title, $content);
-
-    if (empty($errors)) {
-        $sql = "UPDATE
-                posts
-                SET
-                title = ?,
-                content = ?
-                WHERE
-                id = ?";
-
-        $stmt = mysqli_prepare($conn, $sql);
-
-        if ($stmt !== false) {
-            mysqli_stmt_bind_param($stmt, 'ssi', $title, $content, $postID);
-            if (mysqli_stmt_execute($stmt)) {
-                $title = '';
-                $content = '';
-                header("Location: post.php?id={$postID}");
-
-            }
-        } else {
-            echo mysqli_error($conn);
-        }
+    //Check if post is valid.
+    if (!$post) {
+        $post = null; 
     }
+}
+
+//Declare form variables
+$formTitle = 'Edit Post';
+$button = 'Update Post';
+$state = $post->post_hash;
+
+//Check if request to update post has been made
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['state'] === $state) {
+
+    $post->title = $_POST['title'];
+    $post->content = $_POST['content'];
+
+    if ($post->update($conn)) {
+        header("Location: post.php?id={$post->id}");
+    }
+
 }
 
 ?>
 
 
 <?php require 'includes/header.php'?>
-<?php if (is_string($post) || $post === null): ?>
+<?php if (!$post): ?>
     <div class="container postsContainer">
-    <div class="card mb-3">
+        <div class="card mb-3">
             <div class="card-body">
                 <h5 class="card-title"><?="No record of post with id: " . htmlspecialchars($_GET['id'])?></h5>
             </div>

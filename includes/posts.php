@@ -13,19 +13,15 @@ function getPost($conn, $id, $columns = '*')
 {
     $sql = "SELECT $columns
             FROM posts
-                WHERE id = ?";
+                WHERE id = :id";
 
-    $stmt = mysqli_prepare($conn, $sql);
+    $stmt = $conn->prepare($sql);
 
-    if ($stmt !== false) {
-        mysqli_stmt_bind_param($stmt, 'i', $id);
+    $stmt->bindValue(':id', $id, PDO::PARAM_INT);
 
-        if (mysqli_stmt_execute($stmt)) {
-            $post = mysqli_stmt_get_result($stmt);
-            return mysqli_fetch_array($post, MYSQLI_ASSOC);
-        }
-    } else {
-        return null;
+    if ($stmt->execute()) {
+
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 }
 

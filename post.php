@@ -1,11 +1,14 @@
 <?php
-require 'includes/db.php';
-require 'includes/posts.php';
+require 'classes/Database.php';
+require 'classes/Post.php';
 require 'includes/auth.php';
 session_start();
-$conn = getDB();
-if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $post = getPost($conn, $_GET['id']);
+
+$db = new Database();
+$conn = $db->getConn();
+
+if (isset($_GET['id'])) {
+    $post = Post::getPostByID($conn, $_GET['id']);
 } else {
     $post = null;
 }
@@ -15,16 +18,16 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
 <div class="container postsContainer">
   <div id="posts">
-    <?php if ($post !== null): ?>
+    <?php if ($post): ?>
       <div class="card mb-3">
         <div class="card-body">
-          <h4 class="card-title"><?=htmlspecialchars($post['title'])?></h4>
-          <p class="card-text"><?=htmlspecialchars($post['content'])?></p>
+          <h4 class="card-title"><?=htmlspecialchars($post->title)?></h4>
+          <p class="card-text"><?=htmlspecialchars($post->content)?></p>
           <?php if (isLoggedIn()): ?>
-            <a href="editpost.php?id=<?=$post['id']?>&key=<?=$post['post_hash']?>" class="card-link">
+            <a href="editpost.php?id=<?=$post->id?>&key=<?=$post->post_hash?>" class="card-link">
               <i class="fa fa-pencil"></i>
             </a>
-            <a href="deletepost.php?id=<?=$post['id']?>&key=<?=$post['post_hash']?>" class="card-link">
+            <a href="deletepost.php?id=<?=$post->id?>&key=<?=$post->post_hash?>" class="card-link">
               <i class="fa fa-remove"></i>
             </a>
           <?php endif;?>
