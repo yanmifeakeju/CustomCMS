@@ -16,7 +16,7 @@
     <div class="container">
       <a href="index.php" class="navbar-brand">CustomCMS</a>
       <ul class="nav nav-tab justify-content-end">
-        <?php if (isset($_SESSION['is_logged_in']) && $_SESSION['is_logged_in'] === true): ?>
+        <?php if (Auth::isLoggedIn()): ?>
           <li class="nav-item">
             <a class="nav-link" href="newpost.php">Write a Post</a>
           </li>

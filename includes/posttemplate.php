@@ -1,6 +1,5 @@
 <div class="container postsContainer">
     <div id="posts">
-      <?php   var_dump($post) ?>
       <?php if(!empty($post)): ?>
     <div class="card mb-3">
           <div class="card-body">
@@ -21,3 +20,5 @@
         </div>
       </div>
     <?php endif;?>
+
+    

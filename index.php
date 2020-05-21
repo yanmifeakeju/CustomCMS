@@ -1,11 +1,7 @@
 <?php
-require 'classes/Database.php';
-require 'classes/Post.php';
-require 'includes/auth.php';
-session_start();
+require 'includes/init.php';
 
-$db = new Database();
-$conn = $db->getConn();
+$conn = require 'includes/db.php';
 $posts = Post::getAll($conn);
 
 ?>
@@ -21,7 +17,7 @@ $posts = Post::getAll($conn);
           <div class="card-body">
             <h4 class="card-title"><?=htmlspecialchars($post['title'])?></h4>
             <p class="card-text"><?=htmlspecialchars($post['content'])?></p>
-            <?php if (isLoggedIn()): ?>
+            <?php if (Auth::isLoggedIn()): ?>
             <a href="post.php?id=<?=$post['id']?>&key=<?=$post['post_hash']?>" class="card-link">
               <i class="fa fa-eye"></i>
             </a>

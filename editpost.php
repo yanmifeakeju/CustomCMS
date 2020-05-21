@@ -1,23 +1,19 @@
 <?php
-require 'classes/Database.php';
-require 'classes/Post.php';
-require 'includes/auth.php';
-//Check if session is valid
-session_start();
-if (!isLoggedIn()) {
-    header('Location: login.php?error=unauthorised');
+require 'includes/init.php';
+
+if (!Auth::isLoggedIn()) {
+    header('Location: login.php?error=sign');
 }
 
 //Check the id is set in the GET method
 if (isset($_GET['id'])) {
     //Make database connection
-    $db = new Database();
-    $conn = $db->getConn();
+    $conn = require 'includes/db.php';
     $post = Post::getPostByID($conn, $_GET['id']);
 
     //Check if post is valid.
     if (!$post) {
-        $post = null; 
+        $post = null;
     }
 }
 

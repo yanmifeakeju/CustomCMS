@@ -1,16 +1,12 @@
 <?php
-require 'classes/Database.php';
-require 'classes/Post.php';
-require 'includes/auth.php';
+require 'includes/init.php';
 
-session_start();
-if (!isLoggedIn()) {
+if (!Auth::isLoggedIn()) {
     header('Location: login.php?error=unauthorised');
 }
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $db = new Database();
-    $conn = $db->getConn();
+    $conn = require 'includes/db.php';
     $post = Post::getPostByID($conn, $_GET['id'], 'id, post_hash');
 
 }

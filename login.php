@@ -1,22 +1,22 @@
 <?php
-require 'includes/auth.php';
-session_start();
+require 'includes/init.php';
 
 if (isset($_GET['error'])) {
     $error = 'Please log in .';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($_POST['username'] === 'akeju' && $_POST['password'] === 'dimdim') {
+    $conn = require 'includes/db.php';
+
+    if (User::authenticate($conn, $_POST['username'], $_POST['password'])) {
+
         $_SESSION['is_logged_in'] = true;
 
         session_regenerate_id();
 
         header('Location: index.php');
     } else {
-
         $error = "Incorrect login details. Sign Up if you don't have an account.";
-
     }
 }
 ?>

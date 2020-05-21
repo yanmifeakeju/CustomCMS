@@ -1,10 +1,7 @@
 <?php
-require 'includes/auth.php';
-require 'classes/Post.php';
-require 'classes/Database.php';
+require 'includes/init.php';
 
-session_start();
-if (!isLoggedIn()) {
+if (!Auth::isLoggedIn()) {
 
     header('Location: login.php?error=unauthorised');
 }
@@ -18,8 +15,7 @@ $state = 'Add';
 $post = new Post();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['state'] === 'Add') {
-    $db = new Database();
-    $conn = $db->getConn();
+    $conn = require 'includes/db.php';
 
     $post->title = $_POST['title'];
     $post->content = $_POST['content'];

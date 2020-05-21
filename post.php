@@ -1,11 +1,7 @@
 <?php
-require 'classes/Database.php';
-require 'classes/Post.php';
-require 'includes/auth.php';
-session_start();
+require 'includes/init.php';
 
-$db = new Database();
-$conn = $db->getConn();
+$conn = require 'includes/db.php';
 
 if (isset($_GET['id'])) {
     $post = Post::getPostByID($conn, $_GET['id']);
@@ -23,7 +19,7 @@ if (isset($_GET['id'])) {
         <div class="card-body">
           <h4 class="card-title"><?=htmlspecialchars($post->title)?></h4>
           <p class="card-text"><?=htmlspecialchars($post->content)?></p>
-          <?php if (isLoggedIn()): ?>
+          <?php if (Auth::isLoggedIn()): ?>
             <a href="editpost.php?id=<?=$post->id?>&key=<?=$post->post_hash?>" class="card-link">
               <i class="fa fa-pencil"></i>
             </a>
