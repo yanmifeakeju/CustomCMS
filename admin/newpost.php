@@ -1,5 +1,5 @@
 <?php
-require 'includes/init.php';
+require '../includes/init.php';
 
 if (!Auth::isLoggedIn()) {
 
@@ -15,7 +15,7 @@ $state = 'Add';
 $post = new Post();
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['state'] === 'Add') {
-    $conn = require 'includes/db.php';
+    $conn = require '../includes/db.php';
 
     $post->title = $_POST['title'];
     $post->content = $_POST['content'];
@@ -28,8 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['state'] === 'Add') {
 ?>
 
 
-<?php require 'includes/header.php'?>
+<?php require '../includes/header.php'?>
+<?php require '../includes/nav.php';?>
 
 <?php require 'includes/form.php'?>
 
-<?php require 'includes/footer.php'?>
+<?php require '../includes/footer.php'?>

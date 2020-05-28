@@ -1,14 +1,14 @@
 <?php
-require 'includes/init.php';
+require '../includes/init.php';
 
 if (!Auth::isLoggedIn()) {
-    header('Location: login.php?error=sign');
+    header('Location: ../login.php?error=sign');
 }
 
 //Check the id is set in the GET method
 if (isset($_GET['id'])) {
     //Make database connection
-    $conn = require 'includes/db.php';
+    $conn = require '../includes/db.php';
     $post = Post::getPostByID($conn, $_GET['id']);
 
     //Check if post is valid.
@@ -37,7 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['state'] === $state) {
 ?>
 
 
-<?php require 'includes/header.php'?>
+<?php require '../includes/header.php'?>
+<?php require '../includes/nav.php';?>
 <?php if (!$post): ?>
     <div class="container postsContainer">
         <div class="card mb-3">
@@ -52,4 +53,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['state'] === $state) {
 
 <?php endif;?>
 
-<?php require 'includes/footer.php'?>
+<?php require '../includes/footer.php'?>

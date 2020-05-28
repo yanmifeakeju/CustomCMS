@@ -1,12 +1,12 @@
 <?php
-require 'includes/init.php';
+require '../includes/init.php';
 
 if (!Auth::isLoggedIn()) {
-    header('Location: login.php?error=unauthorised');
+    header('Location: ../login.php?error=unauthorised');
 }
 
 if (isset($_GET['id']) && is_numeric($_GET['id'])) {
-    $conn = require 'includes/db.php';
+    $conn = require '../includes/db.php';
     $post = Post::getPostByID($conn, $_GET['id'], 'id, post_hash');
 
 }
@@ -20,7 +20,8 @@ if ($post) {
 
 ?>
 
-<?php require 'includes/header.php';?>
+<?php require '../includes/header.php';?>
+<?php require '../includes/nav.php';?>
 <div class="mx-auto text-center card text-white bg-warning mb-3" style="max-width: 18rem;">
 
 
@@ -41,4 +42,4 @@ if ($post) {
     <?php endif;?>
 
 </div>
-<?php require 'includes/footer.php';?>
+<?php require '../includes/footer.php';?>

@@ -6,9 +6,12 @@ body {
 
 .nav-item {
   background-color: #fff;
-  margin: .25rem;
+  margin: 0.25rem;
 }
 .nav-link {
   color: #2780e3;
-  m
+}
+
+table:hover {
+  cursor: pointer;
 }

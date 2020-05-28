@@ -20,10 +20,39 @@ class Post
         $conn = $db->getConn();
 
         $sql = "SELECT *
-            FROM posts";
+            FROM posts
+            ORDER BY
+                created_at
+            DESC";
 
         $results = $conn->query($sql);
         return $results->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getPage($conn, $limit, $offset)
+    {
+        $sql = "SELECT
+                        *
+                FROM
+                        posts
+                ORDER BY
+                        created_at
+                LIMIT :limit
+                OFFSET :offset";
+
+        $stmt = $conn->prepare($sql);
+
+        $stmt->bindValue(':limit', $limit, PDO::PARAM_INT);
+        $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getTotal($conn)
+    {
+        $total = $conn->query("SELECT COUNT(*) FROM posts")->fetchColumn();
+        return $total;
 
     }
 
@@ -90,10 +119,8 @@ class Post
                     echo 'error';
                     exit;
                 }
-
             }
         }
-
     }
     public function update($conn)
     {
@@ -116,7 +143,6 @@ class Post
         } else {
             return false;
         }
-
     }
 
     /**
@@ -166,5 +192,4 @@ class Post
             return true;
         }
     }
-
 }

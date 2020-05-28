@@ -10,9 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (User::authenticate($conn, $_POST['username'], $_POST['password'])) {
 
-        $_SESSION['is_logged_in'] = true;
-
-        session_regenerate_id();
+        Auth::login();
 
         header('Location: index.php');
     } else {
@@ -23,6 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 
 <?php require 'includes/header.php'?>
+<?php require 'includes/nav.php';?>
 <div class="container postsContainer">
 
     <form class="px-4 py-3" method="post">

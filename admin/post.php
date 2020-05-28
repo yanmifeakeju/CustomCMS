@@ -1,7 +1,7 @@
 <?php
-require 'includes/init.php';
+require '../includes/init.php';
 
-$conn = require 'includes/db.php';
+$conn = require '../includes/db.php';
 
 if (isset($_GET['id'])) {
     $post = Post::getPostByID($conn, $_GET['id']);
@@ -10,8 +10,8 @@ if (isset($_GET['id'])) {
 }
 ?>
 
-<?php require 'includes/header.php';?>
-<?php require 'includes/nav.php';?>
+<?php require '../includes/header.php';?>
+<?php require '../includes/nav.php';?>
 
 <div class="container postsContainer">
   <div id="posts">
@@ -20,6 +20,14 @@ if (isset($_GET['id'])) {
         <div class="card-body">
           <h4 class="card-title"><?=htmlspecialchars($post->title)?></h4>
           <p class="card-text"><?=htmlspecialchars($post->content)?></p>
+          <?php if (Auth::isLoggedIn()): ?>
+            <a href="editpost.php?id=<?=$post->id?>&key=<?=$post->post_hash?>" class="card-link">
+              <i class="fa fa-pencil"></i>
+            </a>
+            <a href="deletepost.php?id=<?=$post->id?>&key=<?=$post->post_hash?>" class="card-link">
+              <i class="fa fa-remove"></i>
+            </a>
+          <?php endif;?>
         </div>
       </div>
     <?php else: ?>
@@ -32,4 +40,4 @@ if (isset($_GET['id'])) {
   </div>
 </div>
 
-<?php require 'includes/footer.php';?>
+<?php require '../includes/footer.php';?>
