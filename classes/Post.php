@@ -8,6 +8,7 @@ class Post
     public $id;
     public $title;
     public $content;
+    public $post_img;
     public $post_hash;
     public $created_at;
     public $published_at;
@@ -191,5 +192,18 @@ class Post
         if ($this->delete($conn)) {
             return true;
         }
+    }
+    public function setImageFile($conn, $filename)
+    {
+        $sql = "UPDATE posts
+                SET post_img = :post_img
+                WHERE id = :id";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bindValue(':post_img', $filename, $filename === null ? PDO::PARAM_NULL : PDO::PARAM_STR);
+        $stmt->bindValue(':id', $this->id);
+
+        return $stmt->execute();
+
     }
 }

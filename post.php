@@ -19,6 +19,11 @@ if (isset($_GET['id'])) {
       <div class="card mb-3">
         <div class="card-body">
           <h4 class="card-title"><?=htmlspecialchars($post->title)?></h4>
+          <?php if ($post->post_img): ?>
+            <div>
+            <img src="/uploads/<?=$post->post_img?>" alt="" srcset="" width="200px">
+            </div>
+          <?php endif;?>
           <p class="card-text"><?=htmlspecialchars($post->content)?></p>
         </div>
       </div>
