@@ -124,7 +124,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 <input type="file" name="file" id="file" class="form-control-file">
             </div>
             <button class="btn btn-primary">Update</button>
+            <?php if ($post->post_img): ?>
             <a href="delete-image.php?id=<?=$post->id?>" class="btn btn-primary">DELETE</a>
+        <?php endif;?>
         </form>
 
     <?php endif;?>

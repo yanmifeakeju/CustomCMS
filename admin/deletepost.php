@@ -11,7 +11,7 @@ if (isset($_GET['id']) && is_numeric($_GET['id'])) {
 
 }
 if ($post) {
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' & $post->post_hash === $_GET['key']) {
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($post->deletePost($conn)) {
             header("Location: index.php");
         }
@@ -25,11 +25,11 @@ if ($post) {
 <div class="mx-auto text-center card text-white bg-warning mb-3" style="max-width: 18rem;">
 
 
-    <?php if ($post && ($post->post_hash) === $_GET['key']): ?>
+    <?php if ($post): ?>
         <div class="card-header">Are you sure?</div>
         <div class="card-body">
             <form class="" action="" method="post">
-                <a class="btn btn-secondary mr-1" href="post.php?id=<?=$post->id?>&key=<?=$post->post_hash?>">Cancel</a>
+                <a class="btn btn-secondary mr-1" href="post.php?id=<?=$post->id?>">Cancel</a>
                 <button class="btn btn-secondary">Delete</button>
             </form>
         </div>

@@ -13,14 +13,20 @@ $button = 'Add Post';
 $state = 'Add';
 
 $post = new Post();
+$conn = require '../includes/db.php';
+
+$postCategories = array_column($post->getCategories($conn), 'id');
+
+$categories = Category::getAll($conn);
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['state'] === 'Add') {
-    $conn = require '../includes/db.php';
 
     $post->title = $_POST['title'];
     $post->content = $_POST['content'];
+    $postCategories = $_POST['categories'] ?? [];
 
     if ($post->create($conn)) {
+        $post->setCategories($conn, $postCategories);
         header("Location: post.php?id={$post->id}&key={$post->post_hash}");
     }
 }

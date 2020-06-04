@@ -17,8 +17,6 @@ class Post
 
     public static function getAll($conn)
     {
-        $db = new Database();
-        $conn = $db->getConn();
 
         $sql = "SELECT *
             FROM posts
@@ -30,16 +28,25 @@ class Post
         return $results->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public static function getPage($conn, $limit, $offset)
+    public static function getPage($conn, $limit, $offset, $only_published = false)
     {
+        $condition = $only_published ? " WHERE published_at IS NOT NULL" : '';
+
         $sql = "SELECT
-                        *
+                    a.*, categories.name as category_name
                 FROM
+                    (
+                    SELECT
+                        *
+                    FROM
                         posts
-                ORDER BY
+                    $condition
+                    ORDER BY
                         created_at
-                LIMIT :limit
-                OFFSET :offset";
+                    LIMIT :limit OFFSET :offset
+                ) AS a
+                LEFT JOIN posts_categories ON a.id = posts_categories.post_id
+                LEFT JOIN categories ON posts_categories.category_id = categories.id";
 
         $stmt = $conn->prepare($sql);
 
@@ -47,14 +54,37 @@ class Post
         $stmt->bindValue(':offset', $offset, PDO::PARAM_INT);
         $stmt->execute();
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        // var_dump($result);
+        // exit;
+
+        $posts = [];
+
+        $previous_id = null;
+
+        foreach ($result as $row) {
+            $post_id = $row['id'];
+
+            if ($post_id != $previous_id) {
+                $row['category_names'] = [];
+                $posts[$post_id] = $row;
+            }
+
+            $posts[$post_id]['category_names'][] = $row['category_name'];
+
+            $previous_id = $post_id;
+        }
+
+        return $posts;
     }
 
-    public static function getTotal($conn)
+    public static function getTotal($conn, $only_published = false)
     {
-        $total = $conn->query("SELECT COUNT(*) FROM posts")->fetchColumn();
-        return $total;
+        $condition = $only_published ? " WHERE published_at IS NOT NULL" : '';
 
+        $total = $conn->query("SELECT COUNT(*) FROM posts{$condition}")->fetchColumn();
+        return $total;
     }
 
     /**
@@ -123,6 +153,77 @@ class Post
             }
         }
     }
+
+    public function publish($conn)
+    {
+        $sql = "UPDATE
+                    posts
+                SET published_at = :published_at
+                WHERE
+                    id = :id";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+
+        $published_at = date("Y-m-d H:i:s");
+        $stmt->bindValue(':published_at', $published_at, PDO::PARAM_STR);
+
+        if ($stmt->execute()) {
+            return $published_at;
+        } else {
+            return 'false';
+        }
+
+    }
+    public function getCategories($conn)
+    {
+
+        $sql = "SELECT
+                        categories.*
+                FROM
+                        categories
+                JOIN
+                        posts_categories
+                ON
+                        categories.id = posts_categories.category_id
+                WHERE
+                        post_id = :id";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bindValue(':id', $this->id, PDO::PARAM_INT);
+
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getWithCategories($conn, $id, $only_published = false)
+    {
+        $sql = "SELECT
+                        posts.*, categories.name as category_name
+                FROM
+                        posts
+                LEFT JOIN
+                        posts_categories
+                ON
+                        posts.id = posts_categories.post_id
+                LEFT JOIN
+                        categories
+                ON
+                        categories.id = posts_categories.category_id
+                WHERE
+                        posts.id = :id";
+
+        if ($only_published) {
+            $sql .= " AND posts.published_at IS NOT NULL";
+        }
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
     public function update($conn)
     {
         $sql = "UPDATE
@@ -144,6 +245,61 @@ class Post
         } else {
             return false;
         }
+    }
+
+    public function setCategories($conn, $ids)
+    {
+        if ($ids) {
+            $sql = "INSERT
+                    IGNORE
+                    INTO
+                        posts_categories (post_id, category_id)
+                    VALUES ";
+
+            $values = [];
+            foreach ($ids as $id) {
+                $values[] = "({$this->id}, ?)";
+            }
+
+            $sql .= implode(", ", $values);
+
+            $stmt = $conn->prepare($sql);
+
+            foreach ($ids as $i => $id) {
+
+                $stmt->bindValue($i + 1, $id, PDO::PARAM_INT);
+
+            }
+            $stmt->execute();
+        }
+
+        $sql = "DELETE
+                FROM
+                    posts_categories
+                WHERE
+                    post_id = {$this->id}";
+
+        if ($ids) {
+            $placeholders = array_fill(0, count($ids), '?');
+
+            $sql .= " AND
+                        category_id
+                    NOT IN
+                    (" . implode(", ", $placeholders) . ")";
+        }
+
+        $stmt = $conn->prepare($sql);
+
+        foreach ($ids as $i => $id) {
+
+            $stmt->bindValue($i + 1, $id, PDO::PARAM_INT);
+
+        }
+
+        $stmt->execute();
+
+        return;
+
     }
 
     /**
@@ -204,6 +360,5 @@ class Post
         $stmt->bindValue(':id', $this->id);
 
         return $stmt->execute();
-
     }
 }

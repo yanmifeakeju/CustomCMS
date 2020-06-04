@@ -5,10 +5,11 @@ if (!Auth::isLoggedIn()) {
     header('Location: ../login.php?error=sign');
 }
 
+//Make database connection
+$conn = require '../includes/db.php';
+
 //Check the id is set in the GET method
 if (isset($_GET['id'])) {
-    //Make database connection
-    $conn = require '../includes/db.php';
     $post = Post::getPostByID($conn, $_GET['id']);
 
     //Check if post is valid.
@@ -20,16 +21,23 @@ if (isset($_GET['id'])) {
 //Declare form variables
 $formTitle = 'Edit Post';
 $button = 'Update Post';
-$state = $post->post_hash;
+
+$postCategories = array_column($post->getCategories($conn), 'id');
+
+$categories = Category::getAll($conn);
 
 //Check if request to update post has been made
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && $_POST['state'] === $state) {
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     $post->title = $_POST['title'];
     $post->content = $_POST['content'];
 
+    $category_ids = $_POST['categories'] ?? [];
+
     if ($post->update($conn)) {
+        $post->setCategories($conn, $category_ids);
         header("Location: post.php?id={$post->id}");
+
     }
 
 }

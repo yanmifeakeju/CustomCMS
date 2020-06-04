@@ -16,6 +16,21 @@
       <div class="form-group">
         <input name="title" type="text" id="title" class="form-control" placeholder="Post Title" value="<?=htmlspecialchars($post->title)?>">
       </div>
+      <fieldset>
+        <legend>Categories</legend>
+        <?php foreach ($categories as $cateogry): ?>
+          <div class="form-check form-check-inline">
+            <input
+             name="categories[]"
+             class="form-check-input"
+             type="checkbox"
+             id="<?=$cateogry['name']?>" value="<?=$cateogry['id']?>"
+            <?=in_array($cateogry['id'], $postCategories) ? 'checked' : ''?>
+      >
+            <label class="form-check-label" for="<?=($cateogry['name'])?>"><?=ucfirst(htmlspecialchars($cateogry['name']))?></label>
+          </div>
+        <?php endforeach;?>
+      </fieldset>
       <div class="form-group">
         <textarea name="content" id="content" class="form-control" placeholder="Write A Post" style="height:500px;"><?=htmlspecialchars($post->content)?></textarea>
       </div>

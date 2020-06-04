@@ -25,10 +25,11 @@ if (!Auth::requireLogin()) {
     </thead>
     <tbody>
     <?php foreach ($posts as $post): ?>
-      <tr data-href="post.php?id=<?=$post['id']?>">
+      <tr
+      data-href="post.php?id=<?=$post['id']?>">
         <td><?=htmlspecialchars($post['title'])?></td>
         <td><?=htmlspecialchars($post['created_at'])?></td>
-        <td><?=($post['published_at']) ? htmlspecialchars($post['published_at']) : 'Unpublished'?></td>
+        <td id="<?=$post['id']?>"><?=($post['published_at']) ? htmlspecialchars($post['published_at']) : '<button class="btn btn-primary publish">Publish</button>'?></td>
       </tr>
       <?php endforeach;?>
     </tbody>
@@ -36,14 +37,4 @@ if (!Auth::requireLogin()) {
 
   <?php require '../includes/pagination.php'?>
 </div>
-<script>
-  document.addEventListener('DOMContentLoaded', () => {
-    const rows = document.querySelectorAll('tr[data-href]');
-    rows.forEach(row => {
-      row.addEventListener('click', ()=> {
-        window.location.href = row.dataset.href;
-      })
-    })
-  });
-</script>
 <?php require '../includes/footer.php'?>
